@@ -9,7 +9,7 @@ pkg_check_modules(LWS REQUIRED IMPORTED_TARGET libwebsockets)
 add_executable(trading_engine_server
         main.c
         websocket_server.c
-        websocket_server.h
+        server_log.c
 )
 
 target_link_libraries(trading_engine_server PRIVATE PkgConfig::LWS)
