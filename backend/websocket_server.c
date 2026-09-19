@@ -17,11 +17,40 @@ static int callback_heartbeat(
 
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
-            server_log(LOG_INFO, "LWS_CALLBACK_ESTABLISHED!!!--->");
+            server_log(LOG_INFO, "LWS_CALLBACK_ESTABLISHED!!!---...");
+            lws_set_timer_usecs(connection, 1000000);
             break;
+
+
+        case LWS_CALLBACK_TIMER:
+            lws_callback_on_writable(connection);
+            break;
+
+        case LWS_CALLBACK_SERVER_WRITEABLE:
+
+            unsigned char buffer[LWS_PRE +32];
+            unsigned char *message = buffer + LWS_PRE;
+
+            int length = snprintf((char *)message, 32, "heartbeat");
+
+            int sent = lws_write(
+                connection,
+                message,
+                (size_t)length,
+                LWS_WRITE_TEXT);
+
+            if (sent < length) {
+                return -1;
+            }
+
+            lws_set_timer_usecs(connection, 1000000);
+
+            break;
+
         case LWS_CALLBACK_CLOSED:
-            server_log(LOG_INFO, "--->LWS_CALLBACK_CLOSEDxxx");
+            server_log(LOG_INFO, "...--->LWS_CALLBACK_CLOSED");
             break;
+
         default:
             break;
     }
