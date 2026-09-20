@@ -13,3 +13,24 @@ services:
       context: ./frontend/firewatch
     ports:
       - "127.0.0.1:3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/firewatch
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+            - .git/
+            - package.json
+            - package-lock.json
+            - Dockerfile
+
+        - action: rebuild
+          path: ./frontend/firewatch/package.json
+
+        - action: rebuild
+          path: ./frontend/firewatch/package-lock.json
+
+        - action: rebuild
+          path: ./frontend/firewatch/Dockerfile

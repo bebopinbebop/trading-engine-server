@@ -34,11 +34,53 @@ export default function Home() {
 
   return (
     <main style={{ padding: 32 }}>
-      <h1>Firewatch</h1>
+      <h1>Firewatch🔥</h1>
       <p>Status: {status}</p>
       <p>Latest message: {message}</p>
       <p>Heartbeats received: {received}</p>
+      <p>sup </p>
+
+      <div >
+        <header>
+          <h1>Stock Market Dashboard</h1>
+        </header>
+        <main>
+          <div>
+            <h2>Watchlist</h2>
+            <ul id="watchlist">
+
+            </ul>
+          </div>
+          <div>
+            <h2>Stock Details</h2>
+            <div id="stock-info">
+
+            </div>
+          </div>
+        </main>
+        <section>
+          <input type="text" id="search"
+            placeholder="Search for stocks..." />
+          <table id="stock-table">
+            <thead>
+              <tr>
+                <th>Stock Name</th>
+                <th>Price</th>
+                <th>Change</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+
     </main>
+
+
   );
 }
 
