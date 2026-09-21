@@ -7,6 +7,8 @@ export default function Home() {
   const [message, setMessage] = useState("Waiting...");
   const [received, setReceived] = useState(0);
 
+  const [serverSequence, setServerSequence] = useState<number | null>(null);
+
   useEffect(() => {
     const socket = new WebSocket(
       "ws://localhost:8080",
@@ -16,8 +18,30 @@ export default function Home() {
     socket.onopen = () => setStatus("Connected");
 
     socket.onmessage = (event) => {
-      setMessage(event.data);
-      setReceived((count) => count + 1);
+      if () { }
+
+      try {
+        const data = JSON.parse(event.data);
+
+        if (
+          data === null ||
+          typeof data !== "object" ||
+          data.type !== "heartbeat" ||
+          !Number.isSafeInteger(data.sequence) ||
+          data.sequence < 1
+        ) {
+          console.warn("Unexpected message:", data);
+          return;
+        }
+
+        setMessage(event.data);
+        setServerSequence(data.sequence);
+        setReceived((count) => count + 1);
+
+
+      }
+
+      catch (error) { console.error("Invalid JSON", event.data, error) }
     };
 
     socket.onerror = () => setStatus("Connection error");
@@ -39,6 +63,7 @@ export default function Home() {
       <p>Latest message: {message}</p>
       <p>Heartbeats received: {received}</p>
       <p>sup </p>
+      <p>Server sequence: {serverSequence ?? "Waiting..."}</p>
 
       <div >
         <header>
