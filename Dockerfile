@@ -9,8 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app/backend
 
-COPY backend/CMakeLists.txt ./
-COPY backend/*.c backend/*.h ./
+COPY backend/CMakeLists.txt backend/main.c ./
+COPY backend/logging/ ./logging/
+COPY backend/network/ ./network/
 
 RUN cmake -S . -B build && cmake --build build
 

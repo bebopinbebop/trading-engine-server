@@ -1,7 +1,8 @@
 #include "websocket_server.h"
 #include <stdio.h>
 #include <libwebsockets.h>
-#include "server_log.h"
+#include "logging/server_log.h"
+
 
 struct heartbeat_session {
     unsigned int sequence; // LAST HEARTBEAT NUMBER SENT

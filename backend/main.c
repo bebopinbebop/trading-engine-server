@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <libwebsockets.h> // WEBSOCKET LIBRARY CALL
-#include "websocket_server.h"
+#include "server/websocket_server.h"
 #include <unistd.h>
 
 int main(void) {

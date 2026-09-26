@@ -8,8 +8,10 @@ pkg_check_modules(LWS REQUIRED IMPORTED_TARGET libwebsockets)
 
 add_executable(firewatch
         main.c
-        websocket_server.c
-        server_log.c
+        logging/server_log.c
+        server/websocket_server.c
 )
 
-target_link_libraries(firewatch PRIVATE PkgConfig::LWS)
+target_include_directories(firewatch PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}"
+)
