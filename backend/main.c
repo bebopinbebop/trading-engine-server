@@ -5,18 +5,7 @@
 
 int main(void) {
 
-    websocket_server_run(8080);
-
-    printf("libwebsockets version: %s\n", lws_get_library_version());
-
-    static long long unsigned int i = 0;
-
-    while (1) {
-        i++;
-        printf("I have been alive for %llu seconds\n",i);
-        fflush(stdout);
-        sleep(1);
+    // THE ACTUAL WEBSOCKET SERVER CALLED FROM THE WEBSOCKET_SERVER FILE
+    websocket_server_run(8080); // TODO: MAKE THE PORT NUMBER A VARIABLE THAT CAN BE PULLED FROM THE DOCKER INIT
 
     }
-
-}

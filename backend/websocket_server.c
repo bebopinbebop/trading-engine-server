@@ -8,6 +8,35 @@ struct heartbeat_session {
     int heartbeat_pending; // WHETHER A TIMER HAS REQUESTED A HEARTBEAT
 };
 
+static int callback_order(
+struct lws *connection,
+enum lws_callback_reasons reason,
+void *user,
+void *in,
+size_t len
+) {
+
+    (void)connection;
+    (void)user;
+    (void)in;
+    (void)len;
+
+    switch (reason) {
+        case LWS_CALLBACK_ESTABLISHED:
+            server_log(LOG_INFO, "Orders client connected");
+            break;
+
+        case LWS_CALLBACK_CLOSED:
+            server_log(LOG_INFO, "Orders client disconnected");
+            break;
+
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 static int callback_heartbeat(
     struct lws *connection,
     enum lws_callback_reasons reason,
@@ -74,6 +103,10 @@ static int callback_heartbeat(
     return 0;
 }
 
+
+// CREATING MY OWN SET OF PROTOCOLS FOR MY WEBSOCKET, ALLOWING FOR A FINER GRAIN OF CONTROL FOR BOTH THE APP AND SERVER TO BEHAVE
+//
+// A CALLBACK FUNCTION HAS TO BE CREATED FOR EACH PROTOCOL SO YOU CAN MAKE IT DO WHAT YOU WANT WHEN X PROTOCOL CONNECTS
 static const struct lws_protocols protocols[] = {
     {
         .name = "heartbeat",
@@ -81,10 +114,18 @@ static const struct lws_protocols protocols[] = {
         .per_session_data_size = sizeof(struct heartbeat_session),
         .rx_buffer_size = 0
     },
-    {0}
+{
+    .name = "order",
+    .callback = callback_order,
+    .per_session_data_size = sizeof(struct heartbeat_session),
+    .rx_buffer_size = 0
+    },
+    {0} // A SENTINEL, USED TO MARK THE END OF THE LIST SO AS TO NOT READ OVER TO ANOTHER MEMORY ADDRESS
 };
 
+// THE ACTUAL SERVER
 int websocket_server_run(int port) {
+    // CREATING A 'CONFIG FILE' THAT IS USED TO SET UP THE SERVER, SETTING ALL PARAMETERS TO 0 || null
     struct lws_context_creation_info info = {0};
 
     info.port = port;
