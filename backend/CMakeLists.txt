@@ -13,5 +13,7 @@ add_executable(firewatch
 )
 
 target_include_directories(firewatch PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
 )
+
+target_link_libraries(firewatch PRIVATE PkgConfig::LWS)

@@ -18,7 +18,7 @@ export default function Home() {
     socket.onopen = () => setStatus("Connected");
 
     socket.onmessage = (event) => {
-      if () { }
+      if (typeof event.data !== "string") { return; }
 
       try {
         const data = JSON.parse(event.data);
