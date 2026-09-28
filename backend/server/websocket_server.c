@@ -69,11 +69,17 @@ static int callback_heartbeat(
         case LWS_CALLBACK_SERVER_WRITEABLE:
             if (!session->heartbeat_pending) {break;}
 
-            unsigned char buffer[LWS_PRE +32];
+            unsigned char buffer[LWS_PRE +128];
             unsigned char *message = buffer + LWS_PRE;
+            size_t capacity = sizeof(buffer) - LWS_PRE;
+
             unsigned int next_sequence = session->sequence + 1;
 
-            int length = snprintf((char *)message, 128, "{\"type\":\"heartbeat\",\"sequence\":%u}", next_sequence);
+            int length = snprintf(
+                (char *)message,
+                capacity,
+                "{\"type\":\"heartbeat\",\"sequence\":%u}",
+                next_sequence);
 
             int sent = lws_write(
                 connection,
@@ -81,7 +87,7 @@ static int callback_heartbeat(
                 (size_t)length,
                 LWS_WRITE_TEXT);
 
-            if (sent < length) {
+            if (sent < length || (size_t)length >= capacity) {
                 server_log(LOG_ERROR, "Failed to write to LWS_CALLBACK_SERVER_WRITEABLE");
                 return -1;
             }
