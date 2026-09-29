@@ -81,12 +81,20 @@ static int callback_heartbeat(
                 "{\"type\":\"heartbeat\",\"sequence\":%u}",
                 next_sequence);
 
+            // CHECKING THE MESSAGE BEFORE SENDING IT VIA LWS_WRITE
+            if (length < 0 || (size_t)length >= capacity) {
+                server_log(LOG_ERROR, "Failed to write to LWS_CALLBACK_SERVER_WRITEABLE");
+                return -1;
+            }
+
+            // ACTUALLY SENDING MESSAGE
             int sent = lws_write(
                 connection,
                 message,
                 (size_t)length,
                 LWS_WRITE_TEXT);
 
+            // CHECKS WHETHER THE SENDING SUCCEEDED
             if (sent < length || (size_t)length >= capacity) {
                 server_log(LOG_ERROR, "Failed to write to LWS_CALLBACK_SERVER_WRITEABLE");
                 return -1;
