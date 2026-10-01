@@ -31,6 +31,16 @@ size_t len
             server_log(LOG_INFO, "Orders client disconnected");
             break;
 
+        case LWS_CALLBACK_RECEIVE:
+            /* Limit the text preview to 200 bytes. */
+            int preview_length = (len > 200) ? 200 : (int)len;
+
+            server_log(LOG_INFO, "Received %zu bytes: %.*s",
+                       len, preview_length,
+                       len > 0 ? (const char *)in : "");
+            break;
+
+
         default:
             break;
     }
