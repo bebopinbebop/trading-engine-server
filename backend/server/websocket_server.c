@@ -9,6 +9,8 @@ struct heartbeat_session {
     int heartbeat_pending; // WHETHER A TIMER HAS REQUESTED A HEARTBEAT
 };
 
+struct order_session{int reply_pending;};
+
 static int callback_order(
 struct lws *connection,
 enum lws_callback_reasons reason,
@@ -136,7 +138,7 @@ static const struct lws_protocols protocols[] = {
     {
         .name = "heartbeat",
         .callback = callback_heartbeat,
-        .per_session_data_size = sizeof(struct heartbeat_session),
+        .per_session_data_size = sizeof(struct order_session),
         .rx_buffer_size = 0
     },
 {
