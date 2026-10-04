@@ -19,13 +19,15 @@ void *in,
 size_t len
 ) {
 
-    (void)connection;
-    (void)user;
+
+    struct order_session *session = user;
+
     (void)in;
     (void)len;
 
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
+            session->reply_pending = 0;
             server_log(LOG_INFO, "Orders client connected");
             break;
 
@@ -40,6 +42,10 @@ size_t len
             server_log(LOG_INFO, "Received %zu bytes: %.*s",
                        len, preview_length,
                        len > 0 ? (const char *)in : "");
+
+            session->reply_pending=1;
+
+            lws_callback_on_writable(connection);
             break;
 
 
@@ -59,9 +65,6 @@ static int callback_heartbeat(
 ) {
 
     struct heartbeat_session *session = user;
-
-    (void)in;
-    (void)len;
 
     switch (reason) {
         case LWS_CALLBACK_ESTABLISHED:
