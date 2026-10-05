@@ -11,6 +11,7 @@ struct heartbeat_session {
 
 struct order_session{int reply_pending;};
 
+// STOCK ORDER LOGIC
 static int callback_order(
 struct lws *connection,
 enum lws_callback_reasons reason,
@@ -56,6 +57,7 @@ size_t len
     return 0;
 }
 
+// HEARTBEAT LOGIC
 static int callback_heartbeat(
     struct lws *connection,
     enum lws_callback_reasons reason,
