@@ -13,11 +13,11 @@ struct order_session{int reply_pending;};
 
 // STOCK ORDER LOGIC
 static int callback_order(
-struct lws *connection,
-enum lws_callback_reasons reason,
-void *user,
-void *in,
-size_t len
+    struct lws *connection,
+    enum lws_callback_reasons reason,
+    void *user,
+    void *in,
+    size_t len
 ) {
 
 
@@ -143,13 +143,13 @@ static const struct lws_protocols protocols[] = {
     {
         .name = "heartbeat",
         .callback = callback_heartbeat,
-        .per_session_data_size = sizeof(struct order_session),
+        .per_session_data_size = sizeof(struct heartbeat_session),
         .rx_buffer_size = 0
     },
 {
     .name = "order",
     .callback = callback_order,
-    .per_session_data_size = sizeof(struct heartbeat_session),
+    .per_session_data_size = sizeof(struct order_session),
     .rx_buffer_size = 0
     },
     {0} // A SENTINEL, USED TO MARK THE END OF THE LIST SO AS TO NOT READ OVER TO ANOTHER MEMORY ADDRESS
