@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function Home() {
   const [status, setStatus] = useState("Connecting...");
   const [message, setMessage] = useState("Waiting...");
   const [received, setReceived] = useState(0);
+
+  const [ticker, setTicker] = useState("");
+  const [queryStatus, setQueryStatus] = useState("Connecting...");
+  const querySocket = useRef<WebSocket | null>(null);
 
   const [serverSequence, setServerSequence] = useState<number | null>(null);
 
@@ -56,6 +60,29 @@ export default function Home() {
     };
   }, []);
 
+
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:8080", "order");
+
+    querySocket.current = socket;
+
+    socket.onopen = () => setQueryStatus("Ready");
+    socket.onerror = () => setQueryStatus("Connection error");
+    socket.onclose = () => setQueryStatus("Disconnected");
+
+    return () => {
+      socket.onopen = null;
+      socket.onerror = null;
+      socket.onclose = null;
+
+      querySocket.current = null;
+      socket.close();
+    };
+
+  }, []);
+
+
+
   return (
     <main style={{ padding: 32 }}>
       <h1>Firewatch🔥</h1>
@@ -84,8 +111,45 @@ export default function Home() {
           </div>
         </main>
         <section>
-          <input type="text" id="search"
-            placeholder="Search for stocks..." />
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+
+              const symbol = ticker.trim().toUpperCase();
+              const socket = querySocket.current;
+
+              // Keep this initial exercise to simple alphabetic tickers.
+              if (!/^[A-Z]{1,10}$/.test(symbol)) {
+                setQueryStatus("Enter 1–10 letters, such as AAPL.");
+                return;
+              }
+
+              if (socket === null || socket.readyState !== WebSocket.OPEN) {
+                setQueryStatus("Connection is not ready.");
+                return;
+              }
+
+              socket.send(symbol);
+              setQueryStatus(`Sent ${symbol} to the server.`);
+            }}
+          >
+            <label htmlFor="search">Stock ticker</label>
+
+            <input
+              id="search"
+              type="text"
+              value={ticker}
+              onChange={(event) => setTicker(event.target.value)}
+              placeholder="AAPL"
+              maxLength={10}
+            />
+
+            <button type="submit">Request options</button>
+
+            <p>{queryStatus}</p>
+          </form>
+
+
           <table id="stock-table">
             <thead>
               <tr>
