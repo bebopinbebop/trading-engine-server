@@ -4,15 +4,49 @@
 #include <stdint.h>
 #include <curl/curl.h>
 
+// MAKING A WORKABLE VARIABLE THAT THE API DATA THAT IS RETURNED IS SAVED
+struct api_response {
+    char *data;
+    size_t length;
+};
+
+static size_t receive_response(
+    char *incoming,
+    size_t size,
+    size_t count,
+    void *userdata
+) {
+    struct api_response *response = userdata;
+
+    if (size != 0 && count > SIZE_MAX/size) {return 0;}
+
+    size_t bytes = size * count;
+
+    if (bytes == 0 ){return 0;}
+
+    if (response->length == SIZE_MAX || bytes > SIZE_MAX - response->length - 1) {return 0;}
+
+    size_t new_length = response->length + bytes;
+
+    char *expanded = realloc(response->data, new_length);
+
+    if (expanded == NULL) {return 0;}
+
+    response->data = expanded;
+
+    memcpy(response->data + response->length, incoming, bytes);
+
+    response->length = new_length;
+    response->data[new_length] = '\0';
+    return bytes;
+}
+
 // TESTING ALPACA API CALLING IN C TO FETCH REST DATA ON OPTIONS FOR SPECIFIED STOCKS USING API CREDENTIALS SAVED IN ENV
-int main(void) {
+int fetch_options(const char *symbol) {
 
     // SAVING ENV PARAM FOR ALPACA API CALLING
     const char *key = getenv("ALPACA_KEY");
     const char *secret = getenv("ALPACA_SECRET");
-
-    // SETTING A STOCK TICKER THAT CAN BE INPUTTED INTO THE URL FOR LATER
-    const char *symbol = "AAPL";
 
     // BUILDING THE BASE OF THE URL TO CALL WITH THE API
     const char *url_format =
@@ -127,7 +161,13 @@ int main(void) {
     // RELEASING MEMORY FOR URL
     free(url);
 
+    struct api_response response = {0};
+
+    curl_easy_setopt(request, CURLOPT_WRITEFUNCTION, received_headers);
+    curl_easy_setopt(request, CURLOPT_WRITEDATA, &response);
+
     // GETTING OUTPUT FROM CURL
+    
     CURLcode result = curl_easy_perform(request);
 
     long http_status = 0;
@@ -146,4 +186,14 @@ int main(void) {
 
     // CLOSING THE SCRIPT, DOING A CURL AND HTTP CHECK TO DETERMINE THE SUCCESS OF THE OPERATION
     return result == CURLE_OK && http_status == 200 ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int main(int argc, char *argv[]) {
+
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <url>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    return fetch_options(argv[1]);
 }
